@@ -70,7 +70,7 @@ class PHOSCnet(nn.Module):
 
     def forward(self, x: torch.Tensor) -> dict:
         x = self.conv(x)
-        nn.Flatten()
+        #nn.Flatten()
         x = self.temporal_pool(x)
         
         return {'phos': self.phos(x), 'phoc': self.phoc(x)}

@@ -14,7 +14,7 @@ from pathlib import Path
 
 class phosc_dataset(Dataset):
     def __init__(self, csvfile, root_dir, transform=None, calc_phosc=True):
-        self.df_all = pd.read_csv(csvfile, usecols = ["Image", "Word"], names = ["Image", "Word"])
+        self.df_all = pd.read_csv(csvfile, usecols = ["Image", "Word"])
         self.root_dir = root_dir
         self.transform = transform
         self.calc_phosc = calc_phosc

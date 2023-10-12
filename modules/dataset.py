@@ -15,7 +15,6 @@ from pathlib import Path
 class phosc_dataset(Dataset):
     def __init__(self, csvfile, root_dir, transform=None, calc_phosc=True):
         self.df_all = pd.read_csv(csvfile, usecols = ["Image", "Word"], names = ["Image", "Word"])
-        print(self.df_all)
         self.root_dir = root_dir
         self.transform = transform
         self.calc_phosc = calc_phosc
@@ -28,9 +27,13 @@ class phosc_dataset(Dataset):
             for i in range(len(self.df_all['phos'])):
                 self.df_all['phosc'][i] = np.concatenate((self.df_all['phos'][i], self.df_all['phoc'][i]))
 
+        self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
+
+    def load_image(self, img_path):
+        return io.imread(img_path)
+
     def __getitem__(self, index):
-        img_path = os.path.join(self.root_dir, self.df_all.iloc[index, 0])
-        image = io.imread(img_path)
+        image = self.images[index]
         y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1])
 
         if self.transform:

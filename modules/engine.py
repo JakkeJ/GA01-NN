@@ -99,9 +99,9 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
                         temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32).to(device))
                 else:
                     if device == "mps":
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32, dim = -1).to(device))
+                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32).to(device), dim = -1)
                     else:
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32, dim = -1).to(device))
+                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32).to(device), dim = -1)
                 if temp > mx:
                     mx = temp
                     pred_word = w

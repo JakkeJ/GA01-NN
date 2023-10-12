@@ -115,7 +115,7 @@ def main(args):
     model = create_model(args.model)
 
     # print summary of model
-    summary(model, (3, 50, 250))
+    summary(model.to(device), (3, 50, 250))
 
     model.to(device)
 

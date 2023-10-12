@@ -103,7 +103,7 @@ def main(args):
             drop_last=False,
             shuffle=True
         )
-    # setting the device to do stuff on
+    
     print('Training on GPU:', torch.cuda.is_available() or torch.backends.mps.is_available())
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -181,6 +181,14 @@ def main(args):
 
 # program start
 if __name__ == '__main__':
+    file_path = "progress.txt"
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} has been deleted.")
+    else:
+        print(f"{file_path} does not exist. Creating...")
+    with open(file_path, "w") as f:
+        f.write("Start of progress file\n")
     # creates commandline parser
     arg_parser = argparse.ArgumentParser('train ', parents=[get_args_parser()])
     args = arg_parser.parse_args()

@@ -51,6 +51,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     mean_loss = loss_over_epoch / n_batches
     t1 = time.time()
     print(f'Time used for epoch {epoch}: {t1-t0}')
+    with open('progress.txt', 'a') as f:
+            f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
     return mean_loss
 
 
@@ -85,7 +87,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
     # Predictions list
     Predictions = []
 
-    for samples, targets, words in dataloader:
+    for count, (samples, targets, words) in enumerate(dataloader):
         samples = samples.to(device)
 
         vector_dict = model(samples)
@@ -96,7 +98,9 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
             pred_vector = vectors[i].view(-1, 769)
             mx = -1
 
-            print("Word #", i)
+            print("Step:", count,"Word:", i)
+            with open('progress.txt', 'a') as f:
+                f.write(f'Step: {count}, Word:, {i}\n')
             for w in word_map:
                 if getattr(torch, "__version__")[0] == "1":
                     if device == "mps":
@@ -129,5 +133,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
     acc = n_correct / no_of_images
     t1 = time.time()
     print(f'Time used for accuracy calculation: {t1-t0}')
+    with open('progress.txt', 'a') as f:
+        f.write(f'Time used for accuracy calculation: {t1-t0}\n')
     return acc, df, acc_by_len
 

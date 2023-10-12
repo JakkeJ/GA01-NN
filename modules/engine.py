@@ -7,6 +7,8 @@ from typing import Iterable
 from modules.loss import PHOSCLoss
 from utils import get_map_dict
 
+import time
+
 
 """
 NOTE: You need not change any part of the code in this file for the assignement.
@@ -14,8 +16,9 @@ NOTE: You need not change any part of the code in this file for the assignement.
 def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
                     dataloader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int):
+    t0 = time.time()
     model.train(True)
-    print(device)
+    print("Running on device:", device)
     n_batches = len(dataloader)
     batch = 1
     loss_over_epoch = 0
@@ -46,13 +49,15 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
     # mean loss for the epoch
     mean_loss = loss_over_epoch / n_batches
-
+    t1 = time.time()
+    print(f'Time used for epoch {epoch}: {t1-t0}')
     return mean_loss
 
 
 # tensorflow accuracy function, modified for pytorch
 @torch.no_grad()
 def accuracy_test(model, dataloader: Iterable, device: torch.device):
+    t0 = time.time()
     # set in model in training mode
     model.eval()
 
@@ -91,6 +96,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
             pred_vector = vectors[i].view(-1, 769)
             mx = -1
 
+            print("Word #", i)
             for w in word_map:
                 if getattr(torch, "__version__")[0] == "1":
                     if device == "mps":
@@ -121,6 +127,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
     df = pd.DataFrame(Predictions, columns=["Image", "True Label", "Predicted Label"])
 
     acc = n_correct / no_of_images
-
+    t1 = time.time()
+    print(f'Time used for accuracy calculation: {t1-t0}')
     return acc, df, acc_by_len
 

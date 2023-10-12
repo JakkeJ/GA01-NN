@@ -22,7 +22,7 @@ class PHOSCLoss(nn.Module):
         # Apply the loss on PHOC features this is a classification loss
     	# Note: This loss should be applicable to the PHOC part of the 
     	# output which is the later part of the output.
-        bce_loss = nn.BCELoss()
+        bce_loss = nn.BCEWithLogitsLoss()
         phoc_loss = self.phoc_w * bce_loss(y['phoc'], targets[:, y['phos'].shape[1]:])
 
         loss = phos_loss + phoc_loss

@@ -14,7 +14,6 @@ __all__ = [
 class PHOSCnet(nn.Module):
     def __init__(self):
         super().__init__()
-
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels = 3, out_channels = 64, kernel_size = 3, padding = "same"),
             nn.ReLU(),
@@ -49,7 +48,6 @@ class PHOSCnet(nn.Module):
         self.temporal_pool = TemporalPyramidPooling([1, 2, 5])
 
         self.phos = nn.Sequential(
-            nn.Flatten(),
             nn.Linear(4096, 4096),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
@@ -61,19 +59,18 @@ class PHOSCnet(nn.Module):
         )
 
         self.phoc = nn.Sequential(
-            nn.Flatten(),
             nn.Linear(4096, 1024),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
             nn.Linear(1024, 1024),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
-            nn.Linear(1024, 604),
-            nn.Sigmoid()
+            nn.Linear(1024, 604)
         )
 
     def forward(self, x: torch.Tensor) -> dict:
         x = self.conv(x)
+        nn.Flatten()
         x = self.temporal_pool(x)
         
         return {'phos': self.phos(x), 'phoc': self.phoc(x)}

@@ -31,8 +31,8 @@ class phosc_dataset(Dataset):
     def __getitem__(self, index):
         img_path = os.path.join(self.root_dir, self.df_all.iloc[index, 0])
         image = io.imread(img_path)
-        y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1], dtype = torch.float32)
-        
+        y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1])
+
         if self.transform:
             image = self.transform(image)
 

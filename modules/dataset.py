@@ -27,8 +27,6 @@ class phosc_dataset(Dataset):
             for i in range(len(self.df_all['phos'])):
                 self.df_all['phosc'][i] = np.concatenate((self.df_all['phos'][i], self.df_all['phoc'][i]))
 
-        print(type(self.df_all['phos']))
-
         self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
 
     def load_image(self, img_path):

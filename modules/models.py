@@ -65,13 +65,13 @@ class PHOSCnet(nn.Module):
             nn.Linear(1024, 1024),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
-            nn.Linear(1024, 604)
+            nn.Linear(1024, 604),
+            nn.Sigmoid()
         )
 
     def forward(self, x: torch.Tensor) -> dict:
         x = self.conv(x)
         x = self.temporal_pool(x)
-        nn.Flatten()
         
         return {'phos': self.phos(x), 'phoc': self.phoc(x)}
 

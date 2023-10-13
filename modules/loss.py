@@ -16,14 +16,12 @@ class PHOSCLoss(nn.Module):
     	# Apply the loss on PHOS features this is a regression loss
     	# Note: This loss should be applicable to the PHOS part of the 
     	# output which is the first part of the output.
-        mse_loss = nn.MSELoss()
-        phos_loss = self.phos_w * mse_loss(targets[:, :y['phos'].shape[1]], y['phos'])
+        phos_loss = self.phos_w * F.mse_loss(targets[:, :y['phos'].shape[1]], y['phos'])
         
         # Apply the loss on PHOC features this is a classification loss
     	# Note: This loss should be applicable to the PHOC part of the 
     	# output which is the later part of the output.
-        bce_loss = nn.BCELoss()
-        phoc_loss = self.phoc_w * bce_loss(y['phoc'], targets[:, y['phos'].shape[1]:])
+        phoc_loss = self.phoc_w * F.binary_cross_entropy_with_logits(y['phoc'], targets[:, y['phos'].shape[1]:])
 
         loss = phos_loss + phoc_loss
         return loss

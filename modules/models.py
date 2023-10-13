@@ -70,8 +70,8 @@ class PHOSCnet(nn.Module):
 
     def forward(self, x: torch.Tensor) -> dict:
         x = self.conv(x)
-        #nn.Flatten() #I expected to need to flatten the layers like in Keras, but results are worse with it?
         x = self.temporal_pool(x)
+        nn.Flatten()
         
         return {'phos': self.phos(x), 'phoc': self.phoc(x)}
 

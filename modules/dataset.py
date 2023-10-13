@@ -19,13 +19,15 @@ class phosc_dataset(Dataset):
         self.transform = transform
         self.calc_phosc = calc_phosc
 
-        self.df_all['phos'] = self.df_all['Word'].apply(generate_phos_vector)
-        self.df_all['phoc'] = self.df_all['Word'].apply(generate_phoc_vector)
+        self.df_all['phos'] = self.df_all['Word'].apply(generate_phos_vector).to_numpy()
+        self.df_all['phoc'] = self.df_all['Word'].apply(generate_phoc_vector).to_numpy()
     
         if self.calc_phosc:
             self.df_all['phosc'] = ''
             for i in range(len(self.df_all['phos'])):
                 self.df_all['phosc'][i] = np.concatenate((self.df_all['phos'][i], self.df_all['phoc'][i]))
+
+        print(type(self.df_all['phos']))
 
         self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
 

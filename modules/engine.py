@@ -60,7 +60,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
 # tensorflow accuracy function, modified for pytorch
 @torch.no_grad()
-def accuracy_test(model, dataloader: Iterable, device: torch.device):
+def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = None):
     t0 = time.time()
     # set in model in training mode
     model.eval()
@@ -102,7 +102,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
 
             print("Step:", count,"Word:", i)
             with open('progress.txt', 'a') as f:
-                f.write(f'Step: {count}, Word:, {i}\n')
+                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             for w in word_map:
                 if getattr(torch, "__version__")[0] == "1":
                     if device == "mps":
@@ -136,6 +136,6 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device):
     t1 = time.time()
     print(f'Time used for accuracy calculation: {t1-t0}')
     with open('progress.txt', 'a') as f:
-        f.write(f'Time used for accuracy calculation: {t1-t0}\n')
+        f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
     return acc, df, acc_by_len
 

@@ -140,7 +140,7 @@ def main(args):
             valid_acc = -1
 
             if validate_model:
-                acc, _, __ = accuracy_test(model, data_loader_valid, device)
+                acc, _, __ = accuracy_test(model, data_loader_valid, device, epoch)
 
                 if acc > mx_acc:
                     mx_acc = acc

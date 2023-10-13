@@ -19,6 +19,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     t0 = time.time()
     model.train(True)
     print("Running on device:", device)
+    with open('progress.txt', 'a') as f:
+        f.write(f'Start of epoch: {epoch}\n')
     n_batches = len(dataloader)
     batch = 1
     loss_over_epoch = 0
@@ -52,7 +54,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     t1 = time.time()
     print(f'Time used for epoch {epoch}: {t1-t0}')
     with open('progress.txt', 'a') as f:
-            f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
+        f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
     return mean_loss
 
 

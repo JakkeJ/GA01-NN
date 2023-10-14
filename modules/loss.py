@@ -21,7 +21,7 @@ class PHOSCLoss(nn.Module):
         # Apply the loss on PHOC features this is a classification loss
     	# Note: This loss should be applicable to the PHOC part of the 
     	# output which is the later part of the output.
-        phoc_loss = self.phoc_w * F.binary_cross_entropy_with_logits(y['phoc'], targets[:, y['phos'].shape[1]:])
+        phoc_loss = self.phoc_w * F.binary_cross_entropy(y['phoc'], targets[:, y['phos'].shape[1]:])
 
         loss = phos_loss + phoc_loss
         return loss

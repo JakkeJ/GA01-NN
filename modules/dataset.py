@@ -9,9 +9,6 @@ from utils import generate_phoc_vector, generate_phos_vector
 import pandas as pd
 import numpy as np
 
-from pathlib import Path
-
-
 class phosc_dataset(Dataset):
     def __init__(self, csvfile, root_dir, transform=None, calc_phosc=True):
         self.df_all = pd.read_csv(csvfile, usecols = ["Image", "Word"])
@@ -19,21 +16,29 @@ class phosc_dataset(Dataset):
         self.transform = transform
         self.calc_phosc = calc_phosc
 
-        self.df_all['phos'] = self.df_all['Word'].apply(generate_phos_vector).to_numpy()
-        self.df_all['phoc'] = self.df_all['Word'].apply(generate_phoc_vector).to_numpy()
-    
-        if self.calc_phosc:
-            self.df_all['phosc'] = ''
-            for i in range(len(self.df_all['phos'])):
-                self.df_all['phosc'][i] = np.concatenate((self.df_all['phos'][i], self.df_all['phoc'][i]))
+        words = self.df_all["Word"].values
 
-        self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
+        phos_vects = []
+        phoc_vects = []
+        phosc_vects = []
 
-    def load_image(self, img_path):
-        return io.imread(img_path)
+        for word in words:
+            phos = generate_phos_vector(word)
+            phoc = np.array(generate_phoc_vector(word))
+            phosc = np.concatenate((phos, phoc))
+
+            phos_vects.append(phos)
+            phoc_vects.append(phoc)
+            phosc_vects.append(phosc)
+
+        self.df_all["phos"] = phos_vects
+        self.df_all["phoc"] = phoc_vects
+        self.df_all["phosc"] = phosc_vects
 
     def __getitem__(self, index):
-        image = self.images[index]
+        img_path = os.path.join(self.root_dir, self.df_all.iloc[index, 0])
+        image = io.imread(img_path)
+
         y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1])
 
         if self.transform:

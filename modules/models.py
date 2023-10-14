@@ -48,6 +48,7 @@ class PHOSCnet(nn.Module):
         self.temporal_pool = TemporalPyramidPooling([1, 2, 5])
 
         self.phos = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(4096, 4096),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
@@ -59,6 +60,7 @@ class PHOSCnet(nn.Module):
         )
 
         self.phoc = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(4096, 1024),
             nn.ReLU(),
             nn.Dropout(p = 0.5),

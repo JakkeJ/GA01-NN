@@ -34,11 +34,13 @@ class phosc_dataset(Dataset):
         self.df_all["phos"] = phos_vects
         self.df_all["phoc"] = phoc_vects
         self.df_all["phosc"] = phosc_vects
+        self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
+
+    def load_image(self, img_path):
+        return io.imread(img_path)
 
     def __getitem__(self, index):
-        img_path = os.path.join(self.root_dir, self.df_all.iloc[index, 0])
-        image = io.imread(img_path)
-
+        image = self.images[index]
         y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1])
 
         if self.transform:

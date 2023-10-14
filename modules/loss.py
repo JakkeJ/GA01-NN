@@ -5,7 +5,7 @@ from torch.nn import functional as F
 
 
 class PHOSCLoss(nn.Module):
-    def __init__(self, phos_w=4.5, phoc_w=1):
+    def __init__(self, phos_w=1.0, phoc_w=4.5):
         super().__init__()
 
         self.phos_w = phos_w

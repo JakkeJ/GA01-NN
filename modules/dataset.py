@@ -15,20 +15,14 @@ class phosc_dataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
         self.calc_phosc = calc_phosc
+
         words = self.df_all["Word"].values
-        phos, phoc, phosc = [], [], []
 
-        for word in words:
-            phos_raw = generate_phos_vector(word)
-            phos.append(phos_raw)
-            phoc_raw = np.concatenate(np.array(generate_phoc_vector(word)))
-            phoc.append(phoc_raw)
-            phosc.append(np.concatenate(phos_raw, phoc_raw))
-
-        self.df_all["phos"] = phos
-        self.df_all["phoc"] = phoc
-        self.df_all["phosc"] = phosc
+        self.df_all["phos"] = [generate_phos_vector(word) for word in words]
+        self.df_all["phoc"] = [np.array(generate_phoc_vector(word)) for word in words]
+        self.df_all["phosc"] = [np.concatenate((generate_phos_vector(word), np.array(generate_phoc_vector(word)))) for word in words]
         self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
+
 
     def load_image(self, img_path):
         return io.imread(img_path)

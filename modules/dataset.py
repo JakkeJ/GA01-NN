@@ -18,22 +18,18 @@ class phosc_dataset(Dataset):
 
         words = self.df_all["Word"].values
 
-        phos_vects = []
-        phoc_vects = []
-        phosc_vects = []
+        phos = []
+        phoc = []
+        phosc = []
 
         for word in words:
-            phos = generate_phos_vector(word)
-            phoc = np.array(generate_phoc_vector(word))
-            phosc = np.concatenate((phos, phoc))
+            phos.append(generate_phos_vector(word))
+            phoc.append(np.array(generate_phoc_vector(word)))
+            phosc.append(np.concatenate((phos, phoc)))
 
-            phos_vects.append(phos)
-            phoc_vects.append(phoc)
-            phosc_vects.append(phosc)
-
-        self.df_all["phos"] = phos_vects
-        self.df_all["phoc"] = phoc_vects
-        self.df_all["phosc"] = phosc_vects
+        self.df_all["phos"] = phos
+        self.df_all["phoc"] = phoc
+        self.df_all["phosc"] = phosc
         self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
 
     def load_image(self, img_path):

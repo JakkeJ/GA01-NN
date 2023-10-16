@@ -15,17 +15,15 @@ class phosc_dataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
         self.calc_phosc = calc_phosc
-
         words = self.df_all["Word"].values
-
-        phos = []
-        phoc = []
-        phosc = []
+        phos, phoc, phosc = [], [], []
 
         for word in words:
-            phos.append(generate_phos_vector(word))
-            phoc.append(np.array(generate_phoc_vector(word)))
-            phosc.append(np.concatenate((phos, phoc)))
+            phos_raw = generate_phos_vector(word)
+            phos.append(phos_raw)
+            phoc_raw = np.concatenate(phos, np.array(generate_phoc_vector(word)))
+            phoc.append(phoc_raw)
+            phosc.append(np.concatenate(phos_raw, phoc_raw))
 
         self.df_all["phos"] = phos
         self.df_all["phoc"] = phoc

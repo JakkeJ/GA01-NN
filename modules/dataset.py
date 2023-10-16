@@ -21,7 +21,7 @@ class phosc_dataset(Dataset):
         for word in words:
             phos_raw = generate_phos_vector(word)
             phos.append(phos_raw)
-            phoc_raw = np.concatenate(phos, np.array(generate_phoc_vector(word)))
+            phoc_raw = np.concatenate(np.array(generate_phoc_vector(word)))
             phoc.append(phoc_raw)
             phosc.append(np.concatenate(phos_raw, phoc_raw))
 

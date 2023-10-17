@@ -170,13 +170,13 @@ def main(args):
 
     def testing():
         if torch.cuda.is_available():
-            device = torch.device('cuda')
             model.load_state_dict(torch.load(args.pretrained_weights), map_location = device)
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device)
         else:
-            device = torch.device('cpu')
-            model.load_state_dict(torch.load(args.pretrained_weights), map_location = 'cpu')
-        acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device)
-        acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device)
+            model.load_state_dict(torch.load(args.pretrained_weights), map_location = torch.device('cpu'))
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'))
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'))
 
         with open(args.model + '/' + 'testresults.txt', 'a') as f:
             f.write(f'{args.model} test results\n')

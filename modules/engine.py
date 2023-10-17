@@ -99,8 +99,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
             target_word = words[i]
             pred_vector = vectors[i].view(-1, 769)
             mx = -1
-
-            print("Step:", count,"Word:", i)
+            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
             with open('progress.txt', 'a') as f:
                 f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             for w in word_map:
@@ -134,7 +133,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
 
     acc = n_correct / no_of_images
     t1 = time.time()
-    print(f'Time used for accuracy calculation: {t1-t0}')
+    print(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}')
     with open('progress.txt', 'a') as f:
         f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
     return acc, df, acc_by_len

@@ -53,6 +53,14 @@ def get_args_parser():
 
 def main(args):
     print('Creating dataset...')
+    file_path = "progress.txt"
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} has been deleted.")
+    else:
+        print(f"{file_path} does not exist. Creating...")
+    with open(file_path, "w") as f:
+        f.write("Start of progress file\n")
     if args.mode == 'train':
         dataset_train = phosc_dataset(args.train_csv,
                                       args.train_folder, transforms.ToTensor())
@@ -152,6 +160,8 @@ def main(args):
                     best_epoch = epoch
 
                     torch.save(model.state_dict(), f'{args.model}/epoch{best_epoch}.pt')
+            else:
+                acc = None
 
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')
@@ -159,8 +169,12 @@ def main(args):
             scheduler.step(acc)
 
     def testing():
-        model.load_state_dict(torch.load(args.pretrained_weights))
-
+        if torch.cuda.is_available():
+            device = torch.device('cuda')
+            model.load_state_dict(torch.load(args.pretrained_weights), map_location = device)
+        else:
+            device = torch.device('cpu')
+            model.load_state_dict(torch.load(args.pretrained_weights), map_location = 'cpu')
         acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device)
         acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device)
 
@@ -181,14 +195,6 @@ def main(args):
 
 # program start
 if __name__ == '__main__':
-    file_path = "progress.txt"
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        print(f"{file_path} has been deleted.")
-    else:
-        print(f"{file_path} does not exist. Creating...")
-    with open(file_path, "w") as f:
-        f.write("Start of progress file\n")
     # creates commandline parser
     arg_parser = argparse.ArgumentParser('train ', parents=[get_args_parser()])
     args = arg_parser.parse_args()

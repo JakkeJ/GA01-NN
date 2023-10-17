@@ -161,7 +161,7 @@ def main(args):
 
                     torch.save(model.state_dict(), f'{args.model}/epoch{best_epoch}.pt')
             else:
-                acc = None
+                acc = 0
 
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')

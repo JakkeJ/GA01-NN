@@ -86,6 +86,12 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         acc_by_len[len(w)] = 0
         word_count_by_len[len(w)] = 0
 
+    word_map_tensors = {w: torch.tensor(vec).float().to(device) for w, vec in word_map.items()}
+
+    word_matrix = torch.stack(list(word_map_tensors.values())).float()
+
+    word_matrix = word_matrix / (word_matrix.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
+
     # Predictions list
     Predictions = []
 
@@ -93,8 +99,30 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         samples = samples.to(device)
 
         vector_dict = model(samples)
-        vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1)
+        vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1).float()
 
+        vectors = vectors / (vectors.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
+
+        similarities = vectors @ word_matrix.T
+
+        _, predicted_indices = similarities.max(dim = 1)
+        predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
+
+        for i in range(len(words)):
+            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
+            with open('progress.txt', 'a') as f:
+                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
+            target_word = words[i]
+            pred_word = predicted_words[i]
+
+            Predictions.append((samples[i], target_word, pred_word))
+
+            if pred_word == target_word:
+                n_correct += 1
+                acc_by_len[len(target_word)] += 1
+
+            word_count_by_len[len(target_word)] += 1
+        '''
         for i in range(len(words)):
             target_word = words[i]
             pred_vector = vectors[i].view(-1, 769)
@@ -123,7 +151,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
                 n_correct += 1
                 acc_by_len[len(target_word)] += 1
 
-            word_count_by_len[len(target_word)] += 1
+            word_count_by_len[len(target_word)] += 1'''
 
     for w in acc_by_len:
         if acc_by_len[w] != 0:

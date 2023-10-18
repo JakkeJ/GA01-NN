@@ -43,8 +43,9 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
         optimizer.step()
 
         print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
-        with open('progress.log', 'a') as f:
-            f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
+        #Too much spam in the progress log when I'm using tail -f progress.log
+        #with open('progress.log', 'a') as f:
+        #    f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
 
         batch += 1
 

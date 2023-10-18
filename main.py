@@ -125,7 +125,12 @@ def main(args):
     # print summary of model
     summary(model.to(device), (3, 50, 250))
 
-    model = torch.nn.parallel.DataParallel(model, device_ids = [0, 1, 2, 3, 4, 5, 6, 7])
+    device_count = torch.cuda.device_count()
+    devices = []
+    for i in range(device_count):
+        devices.append(i)
+
+    model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 
     model.to(device)
 
@@ -179,7 +184,7 @@ def main(args):
             acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device)
             acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device)
         else:
-            model.load_state_dict(torch.load(args.pretrained_weights), map_location = torch.device('cpu'))
+            model.load_state_dict(torch.load(args.pretrained_weights, map_location = torch.device('cpu')))
             acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'))
             acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'))
 

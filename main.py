@@ -125,7 +125,7 @@ def main(args):
     # print summary of model
     summary(model.to(device), (3, 50, 250))
 
-    model = torch.nn.parallel.DistributedDataParallel(model)
+    model = torch.nn.parallel.DataParallel(model, device_ids = [0, 1, 2, 3, 4, 5, 6, 7])
 
     model.to(device)
 

@@ -111,9 +111,10 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
 
         for i in range(len(words)):
-            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            with open('progress.log', 'a') as f:
-                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
+            #When running everything on GPU, this becomes spam. So I have commented it out.
+            #print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
+            #with open('progress.log', 'a') as f:
+            #    f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             target_word = words[i]
             pred_word = predicted_words[i]
 

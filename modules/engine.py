@@ -19,7 +19,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     t0 = time.time()
     model.train(True)
     print("Running on device:", device)
-    with open('progress.txt', 'a') as f:
+    with open('progress.log', 'a') as f:
         f.write(f'Start of epoch: {epoch}\n')
     n_batches = len(dataloader)
     batch = 1
@@ -43,6 +43,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
         optimizer.step()
 
         print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
+        with open('progress.log', 'a') as f:
+            f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
 
         batch += 1
 
@@ -53,7 +55,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     mean_loss = loss_over_epoch / n_batches
     t1 = time.time()
     print(f'Time used for epoch {epoch}: {t1-t0}')
-    with open('progress.txt', 'a') as f:
+    with open('progress.log', 'a') as f:
         f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
     return mean_loss
 
@@ -110,7 +112,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
 
         for i in range(len(words)):
             print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            with open('progress.txt', 'a') as f:
+            with open('progress.log', 'a') as f:
                 f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             target_word = words[i]
             pred_word = predicted_words[i]
@@ -128,7 +130,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
             pred_vector = vectors[i].view(-1, 769)
             mx = -1
             print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            with open('progress.txt', 'a') as f:
+            with open('progress.log', 'a') as f:
                 f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             for w in word_map:
                 if getattr(torch, "__version__")[0] == "1":
@@ -162,7 +164,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
     acc = n_correct / no_of_images
     t1 = time.time()
     print(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}')
-    with open('progress.txt', 'a') as f:
+    with open('progress.log', 'a') as f:
         f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
     return acc, df, acc_by_len
 

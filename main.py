@@ -53,7 +53,7 @@ def get_args_parser():
 
 def main(args):
     print('Creating dataset...')
-    file_path = "progress.txt"
+    file_path = "progress.log"
     if os.path.exists(file_path):
         os.remove(file_path)
         print(f"{file_path} has been deleted.")
@@ -125,6 +125,8 @@ def main(args):
     # print summary of model
     summary(model.to(device), (3, 50, 250))
 
+    model = torch.nn.parallel.DistributedDataParallel(model)
+
     model.to(device)
 
     def training():
@@ -165,6 +167,9 @@ def main(args):
 
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')
+
+            with open(file_path, 'a') as f:
+                f.write(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
 
             scheduler.step(acc)
 

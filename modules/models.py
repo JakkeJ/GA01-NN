@@ -61,13 +61,13 @@ class PHOSCnet(nn.Module):
 
         self.phoc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(4096, 1024),
+            nn.Linear(4096, 4096),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
-            nn.Linear(1024, 1024),
+            nn.Linear(4096, 4096),
             nn.ReLU(),
             nn.Dropout(p = 0.5),
-            nn.Linear(1024, 604)
+            nn.Linear(4096, 604)
         )
 
     def forward(self, x: torch.Tensor) -> dict:

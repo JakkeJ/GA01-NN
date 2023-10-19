@@ -58,7 +58,6 @@ def get_args_parser():
 def main(args):
     t0 = time.time()
     nohup = True if args.nohup else False
-    print(nohup, type(nohup))
     if nohup == True:
         file_path = "progress.log"
         if os.path.exists(file_path):

@@ -19,7 +19,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
     t0 = time.time()
     model.train(True)
     # Changed code start
-    if nohup:
+    if nohup == True:
         with open('progress.log', 'a') as f:
             f.write(f'Running on device: {device}\nStart of epoch: {epoch}\n')
     else:
@@ -48,7 +48,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
         # adjusting weight according to backpropagation
         optimizer.step()
         # Changed code start
-        if nohup:
+        if nohup == True:
             if batch % 10 == 0:
                 with open('progress.log', 'a') as f:
                     f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
@@ -67,7 +67,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
     # Changed code start
     t1 = time.time()
-    if nohup:
+    if nohup == True:
         with open('progress.log', 'a') as f:
             f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
     else:
@@ -130,7 +130,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         _, predicted_indices = similarities.max(dim = 1)
         predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
 
-        if nohup:
+        if nohup == True:
             if count % 10 == 0:
                 with open('progress.log', 'a') as f:
                     f.write(f'Epoch: {epoch}, Step: {count}\n')

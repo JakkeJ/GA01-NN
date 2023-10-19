@@ -57,7 +57,7 @@ def get_args_parser():
 
 def main(args):
     t0 = time.time()
-    if args.nohup:
+    if args.nohup == True:
         file_path = "progress.log"
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -185,7 +185,7 @@ def main(args):
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')
             # Changed code start
-            if args.nohup:
+            if args.nohup == True:
                 with open(file_path, 'a') as f:
                     f.write(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
             else:
@@ -209,7 +209,7 @@ def main(args):
             f.write(f'Seen acc: {acc_seen}\n')
             f.write(f'Unseen acc: {acc_unseen}\n')
         # Changed code start
-        if not args.nohup:
+        if args.nohup == False:
         # Changed code end
             print(f'Accuracies of model: {args.model}')
             print('Seen accuracies:', acc_seen)
@@ -221,7 +221,7 @@ def main(args):
         testing()
     # Changed code start
     t1 = time.time()
-    if args.nohup:
+    if args.nohup == False:
         with open('progress.log', 'a') as f:
             f.write(f'Total time used: {t1-t0}\n')
     else:

@@ -9,10 +9,6 @@ from torchsummary import summary
 from torchvision.transforms import transforms
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel
-
 from modules.dataset import phosc_dataset
 from modules.engine import train_one_epoch, accuracy_test
 from modules.loss import PHOSCLoss
@@ -74,8 +70,7 @@ def main(args):
             batch_size=args.batch_size,
             num_workers=args.num_workers,
             drop_last=False,
-            shuffle=False,
-            sampler=DistributedSampler(dataset_train)
+            shuffle=True
         )
 
         validate_model = False
@@ -91,8 +86,7 @@ def main(args):
                 batch_size=args.batch_size,
                 num_workers=args.num_workers,
                 drop_last=False,
-                shuffle=False,
-                sampler=DistributedSampler(dataset_valid)
+                shuffle=True
             )
 
     elif args.mode == 'test':
@@ -117,7 +111,7 @@ def main(args):
             drop_last=False,
             shuffle=True
         )
-    dist.init_process_group(backend='nccl')
+    
     print('Training on GPU:', torch.cuda.is_available() or torch.backends.mps.is_available())
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -136,7 +130,7 @@ def main(args):
     for i in range(device_count):
         devices.append(i)
 
-    model = DistributedDataParallel(model)
+    model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 
     model.to(device)
 

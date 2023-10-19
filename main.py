@@ -51,7 +51,7 @@ def get_args_parser():
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
     # Changed code start
-    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, use this flag, everything is logged to progress.log')
+    parser.add_argument('--nohup', action='store_true', help='If you run in nohup, use this flag, everything is logged to progress.log')
     # Changed code end
 
     return parser

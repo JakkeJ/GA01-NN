@@ -4,6 +4,8 @@ import os
 
 import modules.models
 
+import time
+
 from timm import create_model
 from torchsummary import summary
 from torchvision.transforms import transforms
@@ -48,19 +50,24 @@ def get_args_parser():
     # trainng related parameters
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
+    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, everything is logged to progress.log')
+
     return parser
 
 
 def main(args):
-    print('Creating dataset...')
-    file_path = "progress.log"
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        print(f"{file_path} has been deleted. Creating blank...")
+    t0 = time.time()
+    if args.nohup:
+        file_path = "progress.log"
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"{file_path} has been deleted. Creating blank...")
+        else:
+            print(f"{file_path} does not exist. Creating...")
+        with open(file_path, "w") as f:
+            f.write("Start of progress file\n")
     else:
-        print(f"{file_path} does not exist. Creating...")
-    with open(file_path, "w") as f:
-        f.write("Start of progress file\n")
+        print('Creating dataset...')
     if args.mode == 'train':
         dataset_train = phosc_dataset(args.train_csv,
                                       args.train_folder, transforms.ToTensor())
@@ -111,28 +118,33 @@ def main(args):
             drop_last=False,
             shuffle=True
         )
-    
+    # Changed code start
     print('Training on GPU:', torch.cuda.is_available() or torch.backends.mps.is_available())
     if torch.cuda.is_available():
         device = torch.device('cuda')
+        device_count = torch.cuda.device_count()
     elif torch.backends.mps.is_built():
         device = torch.device('mps')
+        device_count = 1
     else:
         device = torch.device('cpu')
+        device_count = 1
+    # Changed code end
 
     model = create_model(args.model)
 
     # print summary of model
     summary(model.to(device), (3, 50, 250))
 
-    device_count = torch.cuda.device_count()
+    # Changed code start
     devices = []
     for i in range(device_count):
         devices.append(i)
 
-    model = torch.nn.parallel.DataParallel(model, device_ids = [0,1,2,3,4,5,6,7])
+    model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 
     model.to(device)
+    # Changed code end
 
     def training():
         if not os.path.exists(f'{args.model}/'):
@@ -151,11 +163,11 @@ def main(args):
         mx_acc = 0
         best_epoch = 0
         for epoch in range(1, args.epochs + 1):
-            mean_loss = train_one_epoch(model, criterion, data_loader_train, opt, device, epoch)
+            mean_loss = train_one_epoch(model, criterion, data_loader_train, opt, device, epoch, args.nohup)
             valid_acc = -1
 
             if validate_model:
-                acc, _, __ = accuracy_test(model, data_loader_valid, device, epoch)
+                acc, _, __ = accuracy_test(model, data_loader_valid, device, epoch, args.nohup)
 
                 if acc > mx_acc:
                     mx_acc = acc
@@ -172,35 +184,49 @@ def main(args):
 
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')
-
-            with open(file_path, 'a') as f:
-                f.write(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
+            # Changed code start
+            if args.nohup:
+                with open(file_path, 'a') as f:
+                    f.write(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
+            else:
+                print(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
+            # Changed code end
 
             scheduler.step(acc)
 
     def testing():
         if torch.cuda.is_available():
             model.load_state_dict(torch.load(args.pretrained_weights, map_location = device))
-            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device)
-            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device)
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device, args.nohup)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device, args.nohup)
         else:
             model.load_state_dict(torch.load(args.pretrained_weights, map_location = torch.device('cpu')))
-            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'))
-            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'))
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'), args.nohup)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'), args.nohup)
 
         with open(args.model + '/' + 'testresults.txt', 'a') as f:
             f.write(f'{args.model} test results\n')
             f.write(f'Seen acc: {acc_seen}\n')
             f.write(f'Unseen acc: {acc_unseen}\n')
-
-        print(f'accuracies of model: {args.model}')
-        print('Seen accuracies:', acc_seen)
-        print('Unseen accuracies:', acc_unseen)
+        # Changed code start
+        if not args.nohup:
+        # Changed code end
+            print(f'Accuracies of model: {args.model}')
+            print('Seen accuracies:', acc_seen)
+            print('Unseen accuracies:', acc_unseen)
 
     if args.mode == 'train':
         training()
     elif args.mode == 'test':
         testing()
+    # Changed code start
+    t1 = time.time()
+    if args.nohup:
+        with open('progress.log', 'a') as f:
+            f.write(f'Total time used: {t1-t0}\n')
+    else:
+        print(f'Total time used: {t1-t0}')
+    # Changed code end
 
 
 # program start

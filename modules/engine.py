@@ -15,12 +15,18 @@ NOTE: You need not change any part of the code in this file for the assignement.
 """
 def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
                     dataloader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int):
+                    device: torch.device, epoch: int, nohup = False):
     t0 = time.time()
     model.train(True)
-    print("Running on device:", device)
-    with open('progress.log', 'a') as f:
-        f.write(f'Start of epoch: {epoch}\n')
+    # Changed code start
+    if nohup:
+        with open('progress.log', 'a') as f:
+            f.write(f'Running on device: {device}\nStart of epoch: {epoch}\n')
+    else:
+        print(f'Running on device: {device}')
+        print(f'Start of epoch: {epoch}')
+    # Changed code end
+
     n_batches = len(dataloader)
     batch = 1
     loss_over_epoch = 0
@@ -41,11 +47,15 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
         # adjusting weight according to backpropagation
         optimizer.step()
-
-        #Too much spam in the progress log when I'm using tail -f progress.log
-        #print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
-        #with open('progress.log', 'a') as f:
-        #    f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
+        # Changed code start
+        if nohup:
+            if batch % 10 == 0:
+                with open('progress.log', 'a') as f:
+                    f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
+        else:
+            if batch % 10 == 0:
+                print(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}')
+        # Changed code end
 
         batch += 1
 
@@ -54,17 +64,26 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
     # mean loss for the epoch
     mean_loss = loss_over_epoch / n_batches
+
+    # Changed code start
     t1 = time.time()
-    print(f'Time used for epoch {epoch}: {t1-t0}')
-    with open('progress.log', 'a') as f:
-        f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
+    if nohup:
+        with open('progress.log', 'a') as f:
+            f.write(f'Time used for epoch {epoch}: {t1-t0}\n')
+    else:
+        print(f'Time used for epoch {epoch}: {t1-t0}')
+    # Changed code end
+
     return mean_loss
 
 
 # tensorflow accuracy function, modified for pytorch
 @torch.no_grad()
-def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = None):
+def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = None, nohup = False):
+    # Changed code start
     t0 = time.time()
+    # Changed code end
+
     # set in model in training mode
     model.eval()
 
@@ -89,13 +108,16 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         acc_by_len[len(w)] = 0
         word_count_by_len[len(w)] = 0
 
+    # Changed code start
     word_map_tensors = {w: torch.tensor(vec).float().to(device) for w, vec in word_map.items()}
     word_matrix = torch.stack(list(word_map_tensors.values())).float()
     word_matrix = word_matrix / (word_matrix.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
+    # Changed code end
 
     # Predictions list
     Predictions = []
 
+    # Changed code start
     for count, (samples, targets, words) in enumerate(dataloader):
         samples = samples.to(device)
 
@@ -108,11 +130,15 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         _, predicted_indices = similarities.max(dim = 1)
         predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
 
+        if nohup:
+            if count % 10 == 0:
+                with open('progress.log', 'a') as f:
+                    f.write(f'Epoch: {epoch}, Step: {count}\n')
+        else:
+            if count % 10 == 0:
+                print(f'Epoch: {epoch}, Step: {count}')
+
         for i in range(len(words)):
-            #When running everything on GPU, this becomes spam. So I have commented it out.
-            #print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            #with open('progress.log', 'a') as f:
-            #    f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             target_word = words[i]
             pred_word = predicted_words[i]
 
@@ -123,6 +149,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
                 acc_by_len[len(target_word)] += 1
 
             word_count_by_len[len(target_word)] += 1
+    # Changed code end
 
     for w in acc_by_len:
         if acc_by_len[w] != 0:
@@ -131,9 +158,11 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
     df = pd.DataFrame(Predictions, columns=["Image", "True Label", "Predicted Label"])
 
     acc = n_correct / no_of_images
+    # Changed code start
     t1 = time.time()
     print(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}')
     with open('progress.log', 'a') as f:
         f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
+    # Changed code end
     return acc, df, acc_by_len
 

@@ -148,11 +148,11 @@ def main(args):
         devices.append(i)
     if nohup == True:
         with open('progress.log', 'a') as f:
-            f.write(f'CUDA-devices: {devices}')
+            f.write(f'CUDA-devices: {", ".join(map(str, devices))}\n')
     else:
-        print(f'CUDA-devices: {devices}')
+        print(f'CUDA-devices: {", ".join(map(str, devices))}')
 
-    model = torch.nn.parallel.DataParallel(model, device_ids = devices)
+    #model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 
     model.to(device)
     # Changed code end

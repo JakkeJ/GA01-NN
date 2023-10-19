@@ -49,12 +49,10 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
         optimizer.step()
         # Changed code start
         if nohup == True:
-            if batch % 10 == 0:
-                with open('progress.log', 'a') as f:
+            with open('progress.log', 'a') as f:
                     f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
         else:
-            if batch % 10 == 0:
-                print(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}')
+            print(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}')
         # Changed code end
 
         batch += 1
@@ -132,12 +130,10 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
 
         if nohup == True:
-            if count % 10 == 0:
-                with open('progress.log', 'a') as f:
-                    f.write(f'Epoch: {epoch}, Step: {count}\n')
+            with open('progress.log', 'a') as f:
+                f.write(f'Epoch: {epoch}, Step: {count}\n')
         else:
-            if count % 10 == 0:
-                print(f'Epoch: {epoch}, Step: {count}')
+            print(f'Epoch: {epoch}, Step: {count}')
 
         for i in range(len(words)):
             target_word = words[i]

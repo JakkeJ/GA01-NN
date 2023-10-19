@@ -58,6 +58,7 @@ def get_args_parser():
 
 
 def main(args):
+    dist.init_process_group(backend='nccl')
     print('Creating dataset...')
     file_path = "progress.log"
     if os.path.exists(file_path):
@@ -119,7 +120,6 @@ def main(args):
             drop_last=False,
             shuffle=True
         )
-    dist.init_process_group(backend='nccl')
     print('Training on GPU:', torch.cuda.is_available() or torch.backends.mps.is_available())
     if torch.cuda.is_available():
         device = torch.device('cuda')

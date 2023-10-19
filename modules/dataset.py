@@ -22,9 +22,13 @@ class phosc_dataset(Dataset):
         self.df_all["phoc"] = [np.array(generate_phoc_vector(word)) for word in words]
         self.df_all["phosc"] = [np.concatenate((generate_phos_vector(word), np.array(generate_phoc_vector(word)))) for word in words]
 
+        self.images = [self.load_image(os.path.join(self.root_dir, image)) for image in self.df_all['Image']]
+
+    def load_image(self, img_path):
+        return io.imread(img_path)
+
     def __getitem__(self, index):
-        img_path = os.path.join(self.root_dir, self.df_all.iloc[index, 0])
-        image = io.imread(img_path)
+        image = self.images[index]
 
         y = torch.tensor(self.df_all.iloc[index, len(self.df_all.columns) - 1])
 

@@ -56,7 +56,7 @@ def main(args):
     file_path = "progress.log"
     if os.path.exists(file_path):
         os.remove(file_path)
-        print(f"{file_path} has been deleted.")
+        print(f"{file_path} has been deleted. Creating blank...")
     else:
         print(f"{file_path} does not exist. Creating...")
     with open(file_path, "w") as f:

@@ -44,8 +44,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
 
         print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
         #Too much spam in the progress log when I'm using tail -f progress.log
-        #with open('progress.log', 'a') as f:
-        #    f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
+        with open('progress.log', 'a') as f:
+            f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
 
         batch += 1
 
@@ -90,9 +90,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         word_count_by_len[len(w)] = 0
 
     word_map_tensors = {w: torch.tensor(vec).float().to(device) for w, vec in word_map.items()}
-
     word_matrix = torch.stack(list(word_map_tensors.values())).float()
-
     word_matrix = word_matrix / (word_matrix.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
 
     # Predictions list
@@ -105,7 +103,6 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1).float()
 
         vectors = vectors / (vectors.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
-
         similarities = vectors @ word_matrix.T
 
         _, predicted_indices = similarities.max(dim = 1)
@@ -113,9 +110,9 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
 
         for i in range(len(words)):
             #When running everything on GPU, this becomes spam. So I have commented it out.
-            #print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            #with open('progress.log', 'a') as f:
-            #    f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
+            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
+            with open('progress.log', 'a') as f:
+                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             target_word = words[i]
             pred_word = predicted_words[i]
 
@@ -126,36 +123,6 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
                 acc_by_len[len(target_word)] += 1
 
             word_count_by_len[len(target_word)] += 1
-        '''
-        for i in range(len(words)):
-            target_word = words[i]
-            pred_vector = vectors[i].view(-1, 769)
-            mx = -1
-            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            with open('progress.log', 'a') as f:
-                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
-            for w in word_map:
-                if getattr(torch, "__version__")[0] == "1":
-                    if device == "mps":
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32).to(device))
-                    else:
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w]).to(device))
-                else:
-                    if device == "mps":
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w],dtype = torch.float32).to(device), dim = -1)
-                    else:
-                        temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w]).to(device), dim = -1)
-                if temp > mx:
-                    mx = temp
-                    pred_word = w
-
-            Predictions.append((samples[i], target_word, pred_word))
-
-            if pred_word == target_word:
-                n_correct += 1
-                acc_by_len[len(target_word)] += 1
-
-            word_count_by_len[len(target_word)] += 1'''
 
     for w in acc_by_len:
         if acc_by_len[w] != 0:

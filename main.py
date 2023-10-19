@@ -52,8 +52,6 @@ def get_args_parser():
     # trainng related parameters
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
-    parser.add_argument('--local-rank', type=int, help='Local rank provided by torchrun')
-
     return parser
 
 

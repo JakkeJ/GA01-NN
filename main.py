@@ -147,6 +147,8 @@ def main(args):
     for i in range(device_count):
         devices.append(i)
 
+    print(devices)
+
     model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 
     model.to(device)

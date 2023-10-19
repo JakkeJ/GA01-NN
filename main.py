@@ -50,12 +50,15 @@ def get_args_parser():
     # trainng related parameters
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
+    # Changed code start
     parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, use this flag, everything is logged to progress.log')
+    # Changed code end
 
     return parser
 
 
 def main(args):
+    # Changed code start
     t0 = time.time()
     nohup = True if args.nohup else False
     if nohup == True:
@@ -69,6 +72,8 @@ def main(args):
             f.write("Start of progress file\n")
     else:
         print('Creating dataset...')
+    # Changed code end
+
     if args.mode == 'train':
         dataset_train = phosc_dataset(args.train_csv,
                                       args.train_folder, transforms.ToTensor())

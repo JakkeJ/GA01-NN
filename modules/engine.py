@@ -42,10 +42,10 @@ def train_one_epoch(model: torch.nn.Module, criterion: PHOSCLoss,
         # adjusting weight according to backpropagation
         optimizer.step()
 
-        print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
         #Too much spam in the progress log when I'm using tail -f progress.log
-        with open('progress.log', 'a') as f:
-            f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
+        #print(f'loss: {loss.item()}, step progression: {batch}/{n_batches}, epoch: {epoch}')
+        #with open('progress.log', 'a') as f:
+        #    f.write(f'Loss: {loss.item()}, Step progression: {batch}/{n_batches}, Epoch: {epoch}\n')
 
         batch += 1
 
@@ -110,9 +110,9 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
 
         for i in range(len(words)):
             #When running everything on GPU, this becomes spam. So I have commented it out.
-            print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
-            with open('progress.log', 'a') as f:
-                f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
+            #print(f'Epoch: {epoch}, Step: {count}, Word:, {i}')
+            #with open('progress.log', 'a') as f:
+            #    f.write(f'Epoch: {epoch}, Step: {count}, Word:, {i}\n')
             target_word = words[i]
             pred_word = predicted_words[i]
 

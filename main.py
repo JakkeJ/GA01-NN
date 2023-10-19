@@ -146,8 +146,11 @@ def main(args):
     devices = []
     for i in range(device_count):
         devices.append(i)
-
-    print(devices)
+    if nohup == True:
+        with open('progress.log', 'a') as f:
+            f.write(f'CUDA-devices: {devices}')
+    else:
+        print(f'CUDA-devices: {devices}')
 
     model = torch.nn.parallel.DataParallel(model, device_ids = devices)
 

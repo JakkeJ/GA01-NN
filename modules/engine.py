@@ -125,9 +125,10 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
         vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1).float()
 
         vectors = vectors / (vectors.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
-        similarities = torch.nn.functional.cosine_similarity(vectors, word_matrix)
+        # Manual calculation of cosine similarities with the normalised word_matrix and vectors.
+        cosine_similarities = vectors @ word_matrix.T
 
-        _, predicted_indices = similarities.max(dim=1)
+        _, predicted_indices = cosine_similarities.max(dim = 1)
         predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
 
         if nohup == True:

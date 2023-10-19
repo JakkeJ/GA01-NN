@@ -50,14 +50,15 @@ def get_args_parser():
     # trainng related parameters
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
-    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, everything is logged to progress.log')
+    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, set this to True, everything is logged to progress.log')
 
     return parser
 
 
 def main(args):
     t0 = time.time()
-    if args.nohup == True:
+    nohup = True if args.nohup == "True" or True else False
+    if nohup == True:
         file_path = "progress.log"
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -163,11 +164,11 @@ def main(args):
         mx_acc = 0
         best_epoch = 0
         for epoch in range(1, args.epochs + 1):
-            mean_loss = train_one_epoch(model, criterion, data_loader_train, opt, device, epoch, args.nohup)
+            mean_loss = train_one_epoch(model, criterion, data_loader_train, opt, device, epoch, nohup)
             valid_acc = -1
 
             if validate_model:
-                acc, _, __ = accuracy_test(model, data_loader_valid, device, epoch, args.nohup)
+                acc, _, __ = accuracy_test(model, data_loader_valid, device, epoch, nohup)
 
                 if acc > mx_acc:
                     mx_acc = acc
@@ -185,7 +186,7 @@ def main(args):
             with open(args.model + '/' + 'log.csv', 'a') as f:
                 f.write(f'{epoch},{mean_loss},{acc}\n')
             # Changed code start
-            if args.nohup == True:
+            if nohup == True:
                 with open(file_path, 'a') as f:
                     f.write(f'Epoch: {epoch},Loss: {mean_loss},Accuracy: {acc}\n')
             else:
@@ -197,19 +198,19 @@ def main(args):
     def testing():
         if torch.cuda.is_available():
             model.load_state_dict(torch.load(args.pretrained_weights, map_location = device))
-            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device, args.nohup)
-            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device, args.nohup)
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device, nohup)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device, nohup)
         else:
             model.load_state_dict(torch.load(args.pretrained_weights, map_location = torch.device('cpu')))
-            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'), args.nohup)
-            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'), args.nohup)
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'), nohup)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'), nohup)
 
         with open(args.model + '/' + 'testresults.txt', 'a') as f:
             f.write(f'{args.model} test results\n')
             f.write(f'Seen acc: {acc_seen}\n')
             f.write(f'Unseen acc: {acc_unseen}\n')
         # Changed code start
-        if args.nohup == False:
+        if nohup == False:
         # Changed code end
             print(f'Accuracies of model: {args.model}')
             print('Seen accuracies:', acc_seen)
@@ -221,7 +222,7 @@ def main(args):
         testing()
     # Changed code start
     t1 = time.time()
-    if args.nohup == False:
+    if nohup == False:
         with open('progress.log', 'a') as f:
             f.write(f'Total time used: {t1-t0}\n')
     else:

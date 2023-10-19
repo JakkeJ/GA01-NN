@@ -152,9 +152,10 @@ def main(args):
     else:
         print(f'CUDA-devices: {", ".join(map(str, devices))}')
 
-    #model = torch.nn.parallel.DataParallel(model, device_ids = devices)
-
-    model.to(device)
+    if device == torch.device('cuda'):
+        model = torch.nn.parallel.DataParallel(model, device_ids = devices)
+    else:
+        model.to(device)
     # Changed code end
 
     def training():

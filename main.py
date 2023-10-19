@@ -50,15 +50,14 @@ def get_args_parser():
     # trainng related parameters
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train for')
 
-    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, set this to True, everything is logged to progress.log')
+    parser.add_argument('--nohup', default=False, type=bool, help='If you run in nohup, use this flag, everything is logged to progress.log')
 
     return parser
 
 
 def main(args):
     t0 = time.time()
-    print(args.nohup)
-    nohup = True if args.nohup == "True" or True else False
+    nohup = True if args.nohup else False
     print(nohup, type(nohup))
     if nohup == True:
         file_path = "progress.log"

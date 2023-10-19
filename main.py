@@ -57,6 +57,7 @@ def get_args_parser():
 
 def main(args):
     t0 = time.time()
+    print(args.nohup)
     nohup = True if args.nohup == "True" or True else False
     print(nohup, type(nohup))
     if nohup == True:

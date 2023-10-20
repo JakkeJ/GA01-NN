@@ -208,7 +208,8 @@ def main(args):
 
     def testing():
         if torch.cuda.is_available():
-            model.load_state_dict(torch.load(args.pretrained_weights, map_location = device))
+            model.load_state_dict(torch.load(args.pretrained_weights))
+            device = torch.device('cuda:0')
             acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device, nohup)
             acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device, nohup)
         else:

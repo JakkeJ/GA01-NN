@@ -1,7 +1,6 @@
 import torch
 
 import pandas as pd
-import torch.nn as nn
 
 from typing import Iterable
 from modules.loss import PHOSCLoss

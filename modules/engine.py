@@ -1,6 +1,7 @@
 import torch
 
 import pandas as pd
+import torch.nn as nn
 
 from typing import Iterable
 from modules.loss import PHOSCLoss
@@ -115,22 +116,28 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
     Predictions = []
 
     # Changed code start
-    for samples, targets, words in dataloader:
+    for count, (samples, targets, words) in enumerate(dataloader):
         samples = samples.to(device)
 
         vector_dict = model(samples)
-        vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1)
+        vectors = torch.cat((vector_dict['phos'], vector_dict['phoc']), dim=1).float()
+
+        vectors = vectors / (vectors.norm(p = 2, dim = 1, keepdim = True) + 1e-8)
+        # Manual calculation of cosine similarities with the normalised word_matrix and vectors.
+        cosine_similarities = vectors @ word_matrix.T
+
+        _, predicted_indices = cosine_similarities.max(dim = 1)
+        predicted_words = [list(word_map.keys())[idx] for idx in predicted_indices.cpu().numpy()]
+
+        if nohup == True:
+            with open('progress.log', 'a') as f:
+                f.write(f'Epoch: {epoch}, Step: {count}\n')
+        else:
+            print(f'Epoch: {epoch}, Step: {count}')
 
         for i in range(len(words)):
             target_word = words[i]
-            pred_vector = vectors[i].view(-1, 769)
-            mx = -1
-
-            for w in word_map:
-                temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w]).to(device), dim = -1)
-                if temp > mx:
-                    mx = temp
-                    pred_word = w
+            pred_word = predicted_words[i]
 
             Predictions.append((samples[i], target_word, pred_word))
 

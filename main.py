@@ -152,7 +152,7 @@ def main(args):
     else:
         print(f'CUDA-devices: {", ".join(map(str, devices))}')
 
-    if device == torch.device('cuda'):
+    if device == torch.device('cuda') and len(devices) > 1:
         model = torch.nn.parallel.DataParallel(model, device_ids = devices)
     else:
         model.to(device)

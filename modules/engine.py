@@ -157,9 +157,11 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
     acc = n_correct / no_of_images
     # Changed code start
     t1 = time.time()
-    print(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}')
-    with open('progress.log', 'a') as f:
-        f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
+    if nohup == True:
+        with open('progress.log', 'a') as f:
+            f.write(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}\n')
+    else:
+        print(f'Epoch: {epoch}, Time used for accuracy calculation: {t1-t0}')
     # Changed code end
     return acc, df, acc_by_len
 

@@ -127,7 +127,7 @@ def accuracy_test(model, dataloader: Iterable, device: torch.device, epoch = Non
             mx = -1
 
             for w in word_map:
-                temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w]).to(device))
+                temp = torch.cosine_similarity(pred_vector, torch.tensor(word_map[w]).to(device), dim = -1)
                 if temp > mx:
                     mx = temp
                     pred_word = w

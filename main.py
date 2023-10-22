@@ -207,13 +207,46 @@ def main(args):
             scheduler.step(acc)
 
     def testing():
+        # Source for changed code regarding using DataParallel:
+        # https://discuss.pytorch.org/t/solved-keyerror-unexpected-key-module-encoder-embedding-weight-in-state-dict/1686/4
         if torch.cuda.is_available():
-            model.load_state_dict(torch.load(args.pretrained_weights))
+            # original saved file with DataParallel
+            state_dict = torch.load(args.pretrained_weights)
+            # create new OrderedDict that does not contain `module.`
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove `module.`
+                new_state_dict[name] = v
+            # load params
+            model.load_state_dict(new_state_dict)
             device = torch.device('cuda')
             acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, device, nohup)
             acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, device, nohup)
+        elif torch.backends.mps.is_built():
+            # original saved file with DataParallel
+            state_dict = torch.load(args.pretrained_weights)
+            # create new OrderedDict that does not contain "module."
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove "module."
+                new_state_dict[name] = v
+            # load params
+            model.load_state_dict(new_state_dict)
+            acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('mps'), nohup)
+            acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('mps'), nohup)
         else:
-            model.load_state_dict(torch.load(args.pretrained_weights, map_location = torch.device('cpu')))
+            # original saved file with DataParallel
+            state_dict = torch.load(args.pretrained_weights)
+            # create new OrderedDict that does not contain "module."
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove "module."
+                new_state_dict[name] = v
+            # load params
+            model.load_state_dict(new_state_dict)
             acc_seen, _, __ = accuracy_test(model, data_loader_test_seen, torch.device('cpu'), nohup)
             acc_unseen, _, __ = accuracy_test(model, data_loader_test_unseen, torch.device('cpu'), nohup)
 

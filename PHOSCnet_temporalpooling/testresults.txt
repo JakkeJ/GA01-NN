@@ -1,0 +1,3 @@
+PHOSCnet_temporalpooling test results
+Seen acc: 0.8384401114206128
+Unseen acc: 0.8397062547480375
